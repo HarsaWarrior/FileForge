@@ -2,6 +2,7 @@
 import React, {useState} from 'react'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
+import { toast } from "sonner"
 
 function VideoUpload() {
   const [file, setFile] = useState<File | null>(null)
@@ -16,11 +17,14 @@ function VideoUpload() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!file) return;
+    if (!file) {
+      toast.error("No file selected")
+      return;
+    }
+
 
     if (file.size > MAX_FILE_SIZE) {
-      //TODO: add notification
-      alert("File size too large")
+      toast.error("File too large. Max allowed size is 70MB.")
       return;
     }
 
@@ -33,16 +37,22 @@ function VideoUpload() {
 
     try {
       const response = await axios.post("/api/video-upload", formData)
-      // check for 200 response
+
+      if (response.status !== 200) {
+        toast.error("Upload failed. Try again.")
+        throw new Error("Upload failed")
+      }
+
+      toast.success("Video uploaded successfully")
       router.push("/")
     } catch (error) {
-      console.log(error)
-      // notification for failure
-    } finally{
+      console.error(error)
+      toast.error("Something went wrong during upload.")
+    } finally {
       setIsUploading(false)
     }
 
-    }
+  }
 
 
     return (
@@ -57,7 +67,8 @@ function VideoUpload() {
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="input input-bordered w-full"
+                className="input input-bordered w-full text-white"
+                placeholder='Please Enter Title of the video'
                 required
               />
             </div>
@@ -68,7 +79,8 @@ function VideoUpload() {
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="textarea textarea-bordered w-full"
+                className="textarea textarea-bordered w-full text-white"
+                placeholder='Please Enter a description for this video'
               />
             </div>
             <div>
@@ -79,7 +91,7 @@ function VideoUpload() {
                 type="file"
                 accept="video/*"
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
-                className="file-input file-input-bordered w-full"
+                className="file-input file-input-bordered w-full text-white"
                 required
               />
             </div>

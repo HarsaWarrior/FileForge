@@ -108,7 +108,7 @@ function SocialShare() {
               <h2 className="card-title mb-4">Select Social Media Format</h2>
               <div className="form-control">
                 <select
-                  className="select select-bordered w-full"
+                  className="select select-bordered w-full text-white"
                   value={selectedFormat}
                   onChange={(e) =>
                     setSelectedFormat(e.target.value as SocialFormat)
